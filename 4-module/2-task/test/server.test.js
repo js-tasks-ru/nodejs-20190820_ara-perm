@@ -15,13 +15,13 @@ describe('4-module-2-task', () => {
       server.listen(3001, () => done());
     });
     after((done) => {
-      fse.emptyDirSync(filesFolder);
+      //fse.emptyDirSync(filesFolder);
       fse.writeFileSync(path.join(filesFolder, '.gitkeep'), '');
       server.close(done);
     });
 
     beforeEach(() => {
-      fse.emptyDirSync(filesFolder);
+      //fse.emptyDirSync(filesFolder);
     });
 
     describe('POST', () => {
