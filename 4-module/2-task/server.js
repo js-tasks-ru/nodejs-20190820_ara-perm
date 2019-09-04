@@ -1,7 +1,7 @@
 const url = require('url');
 const http = require('http');
 const path = require('path');
-const {createWriteStream, existsSync, unlink} = require('fs');
+const {createWriteStream, unlink} = require('fs');
 const LimitSizeStream = require('./LimitSizeStream');
 const ONE_MEGABYTE_IN_BYTES = 2 ** 20;
 
@@ -12,27 +12,52 @@ server.on('request', (req, res) => {
 
   const filepath = path.join(__dirname, 'files', pathname);
   
+  if (~pathname.indexOf('/')) {
+    res.statusCode=400;
+    res.end();
+    
+  }
   switch (req.method) {
     case 'POST':  
-        let limitStream = new LimitSizeStream({limit: ONE_MEGABYTE_IN_BYTES});
-        const writeStream = createWriteStream(filepath); 
-        req.pipe(limitStream)
-           .pipe(writeStream)
-       
+        const limitStream = new LimitSizeStream({limit: ONE_MEGABYTE_IN_BYTES});
+        const writeStream = createWriteStream(filepath, {flags:'wx'}); 
       
         limitStream.on('error', err => {
           if (err.code =='LIMIT_EXCEEDED') {
           
             res.statusCode = 413;
-            res.end("FAILLURE"); 
+            unlink(filepath, err => {
+              if (err) console.log(err);
+             });
+            res.end('FAILLURE'); 
+            
           }
-        });         
-         
-        writeStream.on('finish',()=>{
+        });  
+
+        writeStream.once('close', ()=>{
           res.statusCode = 201;
-          res.end("SUCCESS ");
+          res.end('SUCCESS');
         });
-              
+                
+        writeStream.on('error', err => {        
+          if (err.code==='EEXIST') 
+          { res.statusCode=409 } else  {
+            unlink(filepath, err => {
+              if (err) console.log(err);
+             });  
+            res.statusCode=500;
+          }
+          res.end('FAILLURE');
+        });
+               
+        res.on('close', ()=>{
+          if (!res.finished) unlink(filepath, err => {
+            if (err) console.log(err);
+          });  
+        })
+
+        req.pipe(limitStream)
+           .pipe(writeStream);
 
       break;
 
