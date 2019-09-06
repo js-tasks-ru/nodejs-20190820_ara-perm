@@ -17,6 +17,7 @@ server.on('request', (req, res) => {
     res.end();
     
   }
+  
   switch (req.method) {
     case 'POST':  
         const limitStream = new LimitSizeStream({limit: ONE_MEGABYTE_IN_BYTES});
@@ -55,10 +56,14 @@ server.on('request', (req, res) => {
             if (err) console.log(err);
           });  
         })
-
+      
         req.pipe(limitStream)
            .pipe(writeStream);
-
+        
+        
+           // Добавить обработку ошибок при чтении
+        // If the Readable stream emits an error during processing, the Writable destination is not closed automatically. 
+        // If an error occurs, it will be necessary to manually close each stream in order to prevent memory leaks.
       break;
 
     default:
