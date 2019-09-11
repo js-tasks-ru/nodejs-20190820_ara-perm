@@ -9,9 +9,9 @@ module.exports = new LocalStrategy(
       try {
         const user = await User.findOne({email}, {}).select('+password +salt');
         
-        if (!user) return done(null, false);
+        if (!user) return done(null, false, {message: 'Нет такого пользователя'});
         
-        if (!user.checkPassword(password)) return (null, false);
+        if (!user.checkPassword(password)) return done(null, false, {message: 'Невереный пароль'});
 
         return done(null, user);
 
