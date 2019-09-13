@@ -11,7 +11,7 @@ module.exports = async function authenticate(strategy, email, displayName, done)
       displayName
     };
     
-    let user = await User.findOneAndUpdate({email}, tmpUser, {
+    const user = await User.findOneAndUpdate({email}, tmpUser, {
       new: true,
       upsert: true,
       runValidators: true

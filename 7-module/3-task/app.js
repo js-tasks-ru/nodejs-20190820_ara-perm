@@ -31,16 +31,7 @@ app.use(async (ctx, next) => {
 app.use((ctx, next) => {
   ctx.login = async function(user) {
     const token = uuid();
-    const tmpSession = new Session({
-      token,
-      lastVisit: new Date(),
-      user: user.id
-    });
-
-     await Session.findOneAndUpdate({user: user.id}, tmpSession, {
-      new: true,
-      upsert: true
-    });
+    await Session.create({token, lastVisit: new Date(), user});
     return token;
   };
 
