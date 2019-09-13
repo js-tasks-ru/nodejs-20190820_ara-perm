@@ -3,8 +3,7 @@ const passport = require('koa-passport');
 
 module.exports = async function authenticate(strategy, email, displayName, done) {
   try {
-    console.log(email);
-    console.log(displayName);
+    
     if (!email) {done(null, false, `Не указан email`); return;}
 
     const tmpUser = {
