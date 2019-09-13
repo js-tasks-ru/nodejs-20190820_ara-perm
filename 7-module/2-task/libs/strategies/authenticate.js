@@ -1,7 +1,10 @@
 const User = require('../../models/User');
+const passport = require('koa-passport');
 
 module.exports = async function authenticate(strategy, email, displayName, done) {
-  //try {
+  try {
+    console.log(email);
+    console.log(displayName);
     if (!email) {done(null, false, `Не указан email`); return;}
 
     const tmpUser = {
@@ -9,26 +12,15 @@ module.exports = async function authenticate(strategy, email, displayName, done)
       displayName
     };
     
-    let user = await User.find({email});
-   
-    if (user) {
-       done (null, user);
-    } else
-    { 
-      user = new User({
-        email, 
-        displayName
-      });
-      await user.save();
-    }
-    /*const user = await User.findOneAndUpdate({email}, tmpUser, {
+    let user = await User.findOneAndUpdate({email}, tmpUser, {
       new: true,
-      upsert: true
-    });*/
-    //done(null, user);
- // } catch (e) {
-    //done(e)
-  //}
-
-   //done(null, false, `функция аутентификации с помощью ${strategy} не настроена`);
+      upsert: true,
+      runValidators: true
+    });
+    
+    done (null, user);
+     
+  } catch (e) {
+    done(e, false);
+  }
 };
