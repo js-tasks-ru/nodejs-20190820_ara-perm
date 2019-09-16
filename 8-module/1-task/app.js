@@ -32,16 +32,11 @@ app.use(async (ctx, next) => {
 
 app.use((ctx, next) => {
   ctx.login = async function(user) {
-    if (user.verificationToken){
-      ctx.throw(400, 'Подтвердите email');
-      return;
-    } else {
-      const token = uuid();
-      await Session.create({token, user, lastVisit: new Date()});
-
-      return token;
-    }
     
+    const token = uuid();
+    await Session.create({token, user, lastVisit: new Date()});
+
+    return token;  
   };
 
   return next();
@@ -78,7 +73,7 @@ router.post('/oauth_callback', handleMongooseValidationError, oauthCallback);
 
 router.get('/me', mustBeAuthenticated, me);
 
-router.post('/register', register);
+router.post('/register', handleMongooseValidationError, register);
 router.post('/confirm', confirm);
 
 app.use(router.routes());

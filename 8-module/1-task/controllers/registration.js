@@ -29,13 +29,14 @@ module.exports.register = async (ctx, next) => {
 };
 
 module.exports.confirm = async (ctx, next) => {
+    
     const {verificationToken} = ctx.request.body;
-    //console.log(`TOKEN = ${verificationToken}`);
     const user = await User.findOne({verificationToken});
     if (user) {
         user.verificationToken = undefined;
         await user.save();
-        ctx.body = {token: verificationToken};
+        const token = uuid();
+        ctx.body = {token};
     } else {
         ctx.throw(400, 'Ссылка подтверждения недействительна или устарела');
     }
@@ -43,20 +44,3 @@ module.exports.confirm = async (ctx, next) => {
     
     return next();
 };
-
-// let obj = 
-// {
-//     errors: {
-//       email:  {
-//         message: 'Такой email уже существует',
-//         name: 'ValidatorError',
-//         properties: [Object],
-//         kind: 'unique',
-//         path: 'email',
-//         value: 'user@mail.com',
-//         reason: undefined
-//       }
-//     },
-//     _message: 'Validation failed',
-//     name: 'ValidationError'
-//   }
