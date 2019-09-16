@@ -32,10 +32,16 @@ app.use(async (ctx, next) => {
 
 app.use((ctx, next) => {
   ctx.login = async function(user) {
-    const token = uuid();
-    await Session.create({token, user, lastVisit: new Date()});
+    if (user.verificationToken){
+      ctx.throw(400, 'Подтвердите email');
+      return;
+    } else {
+      const token = uuid();
+      await Session.create({token, user, lastVisit: new Date()});
 
-    return token;
+      return token;
+    }
+    
   };
 
   return next();
